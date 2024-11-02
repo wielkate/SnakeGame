@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SnakeGame
+﻿namespace SnakeGame
 {
     internal class Enum
     {

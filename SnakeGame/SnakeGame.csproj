@@ -44,7 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enum.cs" />
-    <Compile Include="Properties.cs" />
+    <Compile Include="Parameters.cs" />
+    <Compile Include="Snake.cs" />
     <Compile Include="SnakeGame.cs" />
     <Compile Include="MainClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

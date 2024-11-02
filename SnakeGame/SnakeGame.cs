@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using static SnakeGame.Enum;
+using static SnakeGame.Parameters;
 
 namespace SnakeGame
 {
@@ -12,50 +13,37 @@ namespace SnakeGame
     // setCursorPosition(fromLeft, fromTop)
     internal class SnakeGame
     {
-        private static readonly List<(int, int)> snakeBody = new List<(int fromLeft, int fromTop)>();
-        private static readonly List<(int, int)> freePoints = new List<(int fromLeft, int fromTop)>();
-        private static readonly PointType[,] board = new PointType[Properties.BOARD_HEIGHT, Properties.BOARD_WIDTH];
-        private static readonly Random random = new Random();
+        internal static readonly PointType[,] board = new PointType[BOARD_HEIGHT, BOARD_WIDTH];
+        internal static readonly List<(int fromLeft, int fromTop)> freePoints = new List<(int, int)>();
+        internal static (int fromLeft, int fromTop) fruitPoint;
 
+        private static readonly Snake snake = new Snake();
+        private static readonly Random random = new Random();
         private static Direction currentDirection = Direction.Down;
 
         internal static void Play()
         {
             SetupConsole();
             DrawBoard();
-
-            // Set up snake in the middle
-            Console.SetCursorPosition(Properties.BOARD_WIDTH / 2, Properties.BOARD_HEIGHT / 2);
-            board[Properties.BOARD_HEIGHT / 2, Properties.BOARD_WIDTH / 2] = PointType.Snake;
-            snakeBody.Add((Properties.BOARD_WIDTH / 2, Properties.BOARD_HEIGHT / 2));
-            freePoints.Remove((Properties.BOARD_WIDTH / 2, Properties.BOARD_HEIGHT / 2));
-
-            DrawSnake();
+            snake.DrawSnake();
             DrawFruit();
 
             while (true)
             {
-                Console.SetCursorPosition(0, Properties.BOARD_HEIGHT + 1);
                 currentDirection = ReadDirection(currentDirection);
                 MoveSnake(currentDirection);
-                DrawSnake();
-                Thread.Sleep(Properties.TIMEOUT);
+                snake.DrawSnake();
+                Thread.Sleep(TIMEOUT);
             }
-        }
-
-        private static void DrawFruit()
-        {
-            var randomIndex = random.Next(freePoints.Count);
-            (int fromLeft, int fromTop) = freePoints[randomIndex];
-            board[fromTop, fromLeft] = PointType.Fruit;
-            freePoints.Remove((fromLeft, fromTop));
-            Console.SetCursorPosition(fromLeft, fromTop);
-            Console.WriteLine(Properties.FRUIT);
         }
 
         private static Direction ReadDirection(Direction currentDirection)
         {
-            if (!Console.KeyAvailable) return currentDirection;
+            if (!Console.KeyAvailable)
+            {
+                return currentDirection;
+            }
+
             var key = Console.ReadKey(true).Key;
             switch (key)
             {
@@ -74,95 +62,82 @@ namespace SnakeGame
 
         private static void MoveSnake(Direction direction)
         {
-            (int fromLeft, int fromTop) = snakeBody.First();
             switch (direction)
             {
                 case Direction.Left:
-                    ChangePosition(fromLeft - 1, fromTop);
+                    ChangePosition(-2, 0);
                     break;
                 case Direction.Right:
-                    ChangePosition(fromLeft + 1, fromTop);
+                    ChangePosition(2, 0);
                     break;
                 case Direction.Up:
-                    ChangePosition(fromLeft, fromTop - 1);
+                    ChangePosition(0, -1);
                     break;
                 case Direction.Down:
-                    ChangePosition(fromLeft, fromTop + 1);
+                    ChangePosition(0, 1);
+                    break;
+                default:
                     break;
             }
         }
 
-        private static void ChangePosition(int newFromLeft, int newFromTop)
+        private static void ChangePosition(int changedLeft, int changedTop)
         {
-            if (board[newFromTop, newFromLeft] == PointType.Wall) throw new Exception("Game is over. You just hit the wall");
-            else if (board[newFromTop, newFromLeft] == PointType.Snake) throw new Exception("Game is over. Don't eat youself!");
-            
-            else if (board[newFromTop, newFromLeft] == PointType.Free)
-            {
-                board[newFromTop, newFromLeft] = PointType.Snake;
-                RemoveSnakeTail();
-                snakeBody.Add((newFromLeft, newFromTop));
-                freePoints.Remove((newFromLeft, newFromTop));
-            }
+            (int oldLeft, int oldTop) = snake.Head;
+            (int newLeft, int newTop) = (oldLeft + changedLeft, oldTop + changedTop);
 
-            else if (board[newFromTop, newFromLeft] == PointType.Fruit)
+            if (board[newTop, newLeft] == PointType.Wall)
             {
-                board[newFromTop, newFromLeft] = PointType.Snake;
-                snakeBody.Add((newFromLeft, newFromTop));
-                freePoints.Remove((newFromLeft, newFromTop));
+                ThrowAnException("Game is over. You just hit the wall");
+            }
+            else if (board[newTop, newLeft] == PointType.Snake)
+            {
+                ThrowAnException("Game is over. Don't eat youself!");
+            }
+            else if (board[newTop, newLeft] == PointType.Free)
+            {
+                snake.MoveTailToOldHead();
+                snake.MoveHeadTo(newLeft, newTop);
+            }
+            else if (board[newTop, newLeft] == PointType.Fruit)
+            {
+                snake.Grow();
+                snake.MoveHeadTo(newLeft, newTop);
                 DrawFruit();
             }
-
-            else throw new Exception($"Error in ChangePosition() method for arguments {newFromLeft}, {newFromTop}");          
-        }
-
-        private static void DrawSnake()
-        {
-            foreach ((int fromLeft, int fromTop) in snakeBody)
+            else
             {
-                Console.SetCursorPosition(fromLeft, fromTop);
-                Console.WriteLine(Properties.SNAKE_BODY);
+                ThrowAnException($"Error in ChangePosition() method for arguments {newLeft}, {newTop}");
             }
         }
 
-        private static void RemoveSnakeTail()
+        internal static void DrawFruit()
         {
-            (int fromLeft, int fromTop) = snakeBody.Last();
-            board[fromTop, fromLeft] = PointType.Free;
-            snakeBody.Remove((fromLeft, fromTop));
-            freePoints.Add((fromLeft, fromTop));
-            Console.SetCursorPosition(fromLeft, fromTop);
-            Console.WriteLine(" ");
+            var filteredFreePoints = freePoints.Where(point => point.fromLeft % 2 == 1).ToList();
+            var randomIndex = random.Next(filteredFreePoints.Count);
+            fruitPoint = filteredFreePoints[randomIndex];
+            _ = freePoints.Remove((fruitPoint.fromLeft, fruitPoint.fromTop));
+            board[fruitPoint.fromTop, fruitPoint.fromLeft] = PointType.Fruit;
+            Console.SetCursorPosition(fruitPoint.fromLeft, fruitPoint.fromTop);
+            Console.Write(FRUIT);
         }
 
         private static void DrawBoard()
         {
-            for (var fromTop = 0; fromTop < Properties.BOARD_HEIGHT; fromTop++)
+            for (var fromTop = 0; fromTop < BOARD_HEIGHT; fromTop++)
             {
-                for (var fromLeft = 0; fromLeft < Properties.BOARD_WIDTH; fromLeft++)
+                for (var fromLeft = 0; fromLeft < BOARD_WIDTH; fromLeft++)
                 {
-                    if (fromTop == 0 || fromLeft == 0 || fromTop == Properties.BOARD_HEIGHT - 1)
+                    if (fromTop == 0 || fromLeft == 0 || fromTop == BOARD_HEIGHT - 1 || fromLeft == BOARD_WIDTH - 1)
                     {
                         board[fromTop, fromLeft] = PointType.Wall;
                         Console.SetCursorPosition(fromLeft, fromTop);
-                        Console.Write(Properties.BOARD);
-
-                    }
-                    else if (fromLeft == Properties.BOARD_WIDTH - 1)
-                    {
-                        board[fromTop, fromLeft] = PointType.Wall;
-                        Console.SetCursorPosition(fromLeft + 1, fromTop);
-                        Console.Write(Properties.BOARD);
-                        Console.SetCursorPosition(fromLeft + 1, fromTop + 1);
-                        Console.Write(Properties.BOARD);
-                        Console.SetCursorPosition(fromLeft + 1, fromTop - 1);
-                        Console.Write(Properties.BOARD);
-
+                        Console.Write(BOARD);
                     }
                     else
                     {
                         board[fromTop, fromLeft] = PointType.Free;
-                        freePoints.Add((fromLeft,  fromTop));
+                        freePoints.Add((fromLeft, fromTop));
                     }
                 }
             }
@@ -170,9 +145,16 @@ namespace SnakeGame
 
         private static void SetupConsole()
         {
-            Console.Title = Properties.CONSOLE_TITLE;
+            Console.Title = CONSOLE_TITLE;
             Console.OutputEncoding = Encoding.UTF8;
             Console.CursorVisible = false;
+        }
+
+        private static void ThrowAnException(string message)
+        {
+            Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
+            Console.ForegroundColor = ConsoleColor.Red;
+            throw new Exception(message);
         }
     }
 }
