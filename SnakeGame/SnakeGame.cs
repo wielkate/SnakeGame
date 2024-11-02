@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using static SnakeGame.Enum;
@@ -14,19 +12,18 @@ namespace SnakeGame
     internal class SnakeGame
     {
         internal static readonly PointType[,] board = new PointType[BOARD_HEIGHT, BOARD_WIDTH];
-        internal static readonly List<(int fromLeft, int fromTop)> freePoints = new List<(int, int)>();
-        internal static (int fromLeft, int fromTop) fruitPoint;
 
         private static readonly Snake snake = new Snake();
         private static readonly Random random = new Random();
         private static Direction currentDirection = Direction.Down;
+        private static int score = 0;
 
         internal static void Play()
         {
             SetupConsole();
             DrawBoard();
             snake.DrawSnake();
-            DrawFruit();
+            DrawFruits();
 
             while (true)
             {
@@ -65,13 +62,13 @@ namespace SnakeGame
             switch (direction)
             {
                 case Direction.Left:
-                    ChangePosition(-2, 0);
+                    ChangePosition(-2, 0); // pixel's width is 8 (so +-2)
                     break;
                 case Direction.Right:
                     ChangePosition(2, 0);
                     break;
                 case Direction.Up:
-                    ChangePosition(0, -1);
+                    ChangePosition(0, -1); // pixel's height is 16 (so +-1)
                     break;
                 case Direction.Down:
                     ChangePosition(0, 1);
@@ -86,7 +83,7 @@ namespace SnakeGame
             (int oldLeft, int oldTop) = snake.Head;
             (int newLeft, int newTop) = (oldLeft + changedLeft, oldTop + changedTop);
 
-            if (board[newTop, newLeft] == PointType.Wall)
+            if (newLeft < 0 || newTop < 0 || board[newTop, newLeft] == PointType.Wall)
             {
                 ThrowAnException("Game is over. You just hit the wall");
             }
@@ -104,22 +101,38 @@ namespace SnakeGame
                 snake.Grow();
                 snake.MoveHeadTo(newLeft, newTop);
                 DrawFruit();
+                score++;
             }
             else
             {
                 ThrowAnException($"Error in ChangePosition() method for arguments {newLeft}, {newTop}");
             }
         }
-
-        internal static void DrawFruit()
+        private static void DrawFruits()
         {
-            var filteredFreePoints = freePoints.Where(point => point.fromLeft % 2 == 1).ToList();
-            var randomIndex = random.Next(filteredFreePoints.Count);
-            fruitPoint = filteredFreePoints[randomIndex];
-            _ = freePoints.Remove((fruitPoint.fromLeft, fruitPoint.fromTop));
-            board[fruitPoint.fromTop, fruitPoint.fromLeft] = PointType.Fruit;
-            Console.SetCursorPosition(fruitPoint.fromLeft, fruitPoint.fromTop);
-            Console.Write(FRUIT);
+            for (var i = 0; i < FRUITS_NUMBER; i++)
+            {
+                DrawFruit();
+            }
+        }
+
+        private static void DrawFruit()
+        {
+            var randomIndex = random.Next(FRUITS.Length);
+            var randomFruit = FRUITS[randomIndex];
+
+            int fromLeft;
+            int fromTop;
+            do
+            {
+                fromLeft = (random.Next(BOARD_WIDTH / 2) * 2) + 1; // odd nums
+                fromTop = random.Next(BOARD_HEIGHT);
+            }
+            while (board[fromTop, fromLeft] != PointType.Free);
+
+            board[fromTop, fromLeft] = PointType.Fruit;
+            Console.SetCursorPosition(fromLeft, fromTop);
+            Console.Write(randomFruit);
         }
 
         private static void DrawBoard()
@@ -137,7 +150,6 @@ namespace SnakeGame
                     else
                     {
                         board[fromTop, fromLeft] = PointType.Free;
-                        freePoints.Add((fromLeft, fromTop));
                     }
                 }
             }
@@ -153,6 +165,8 @@ namespace SnakeGame
         private static void ThrowAnException(string message)
         {
             Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"Your score is {score}");
             Console.ForegroundColor = ConsoleColor.Red;
             throw new Exception(message);
         }

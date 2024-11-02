@@ -18,10 +18,10 @@ namespace SnakeGame
         }
         internal void DrawSnake()
         {
-            DrawSnakeAtPoint(SNAKE_HEAD, Head.fromLeft, Head.fromTop);
+            DrawSnakePartAtPoint(SNAKE_HEAD, Head.fromLeft, Head.fromTop);
             foreach ((var fromLeft, var fromTop) in Body)
             {
-                DrawSnakeAtPoint(SNAKE_BODY, fromLeft, fromTop);
+                DrawSnakePartAtPoint(SNAKE_BODY, fromLeft, fromTop);
             }
         }
 
@@ -42,21 +42,16 @@ namespace SnakeGame
             Body.Enqueue((Head.fromLeft, Head.fromTop));
         }
 
-        private void DrawSnakeAtPoint(string snakePart, int fromLeft, int fromTop)
+        private void DrawSnakePartAtPoint(string snakePart, int fromLeft, int fromTop)
         {
             SnakeGame.board[fromTop, fromLeft] = PointType.Snake;
-            _ = SnakeGame.freePoints.Remove((fromLeft, fromTop));
             Console.SetCursorPosition(fromLeft, fromTop);
             Console.Write(snakePart);
-
-            Console.SetCursorPosition(0, BOARD_HEIGHT + 2);
-            Console.WriteLine($"Snake position {(fromLeft, fromTop)}");
         }
 
         private void RemoveSnakePartAtPoint(int fromLeft, int fromTop)
         {
             SnakeGame.board[fromTop, fromLeft] = PointType.Free;
-            SnakeGame.freePoints.Add((fromLeft, fromTop));
             Console.SetCursorPosition(fromLeft, fromTop);
             Console.Write(" ");
         }
