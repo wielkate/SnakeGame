@@ -2,7 +2,7 @@
 {
     internal class Enum
     {
-        public enum PointType
+        internal enum PointType
         {
             Free,
             Wall,
@@ -10,12 +10,20 @@
             Snake
         }
 
-        public enum Direction
+        internal enum Direction
         {
             Up,
             Down,
             Left,
             Right
+        }
+
+        internal enum Tab
+        {
+            Play,
+            About,
+            Exit,
+            Main
         }
     }
 }
