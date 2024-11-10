@@ -13,5 +13,8 @@
         internal static readonly string BOARD = "░";
         internal static readonly string SNAKE_BODY = "🟢";
         internal static readonly string SNAKE_HEAD = "👽";
+
+        internal static readonly int CONSOLE_WIDTH = 120;
+        internal static readonly int CONSOLE_HEIGHT = 30;
     }
 }

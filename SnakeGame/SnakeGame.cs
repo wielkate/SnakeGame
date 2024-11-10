@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Threading;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
@@ -20,7 +19,6 @@ namespace SnakeGame
 
         internal static void Play()
         {
-            SetupConsole();
             DrawBoard();
             snake.DrawSnake();
             DrawFruits();
@@ -62,13 +60,13 @@ namespace SnakeGame
             switch (direction)
             {
                 case Direction.Left:
-                    ChangePosition(-2, 0); // pixel's width is 8 (so +-2)
+                    ChangePosition(-2, 0); // char size is 16 px wide (so +-2)
                     break;
                 case Direction.Right:
                     ChangePosition(2, 0);
                     break;
                 case Direction.Up:
-                    ChangePosition(0, -1); // pixel's height is 16 (so +-1)
+                    ChangePosition(0, -1); // char size is 8 px hight (so +-1)
                     break;
                 case Direction.Down:
                     ChangePosition(0, 1);
@@ -153,13 +151,6 @@ namespace SnakeGame
                     }
                 }
             }
-        }
-
-        private static void SetupConsole()
-        {
-            Console.Title = CONSOLE_TITLE;
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.CursorVisible = false;
         }
 
         private static void ThrowAnException(string message)
