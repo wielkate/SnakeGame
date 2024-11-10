@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
+using System.Threading;
+using Figgle;
+using Pastel;
+
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
+using static SnakeGame.Colors;
 
 namespace SnakeGame
 {
     internal class Menu
     {
         private static readonly Tab[] tabs = { Tab.Play, Tab.About, Tab.Exit };
-        private static readonly string asciiChars = " .:-=+*#%@";
+        private static readonly string asciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
         private static readonly Bitmap image = new Bitmap("snake.png");
 
         private static int selectedIndex = 0;
@@ -25,16 +30,22 @@ namespace SnakeGame
         {
             Console.Clear();
             DisplayImage();
-            DisplayWelcomeText();
-            DisplayMenuOptions();
-
-            var key = Console.ReadKey(true).Key;
-            while (key != ConsoleKey.Enter)
+            do
             {
+                DisplayWelcomeText(); // Blinking till you press the key
+            }
+            while (!Console.KeyAvailable);
+            menuTopPosition += 3;
+            ClearConsoleAtLine(menuTopPosition);
+
+            ConsoleKey key;
+            do
+            {
+                key = Console.ReadKey(true).Key;
                 selectedIndex = SelectIndex(key);
                 DisplayMenuOptions();
-                key = Console.ReadKey(true).Key;
             }
+            while (key != ConsoleKey.Enter);
 
             DisplayTab(tabs[selectedIndex]);
         }
@@ -56,53 +67,50 @@ namespace SnakeGame
 
         private static void PlayTab()
         {
+            var offset = new string(' ', BOARD_WIDTH);
+            var title = $@"                                                                                                                                                                                                                                                                                      
+{offset}                      __    __    __    __
+{offset}                     /  \  /  \  /  \  /  \
+{offset}____________________/  __\/  __\/  __\/  __\_________________________
+{offset}___________________/  /__/  /__/  /__/  /____________________________
+{offset}                  | / \   / \   / \   / \  \____
+{offset}                  |/   \_/   \_/   \_/   \    o \
+{offset}                                          \_____/--<";
+            var text = $@"
+ {offset} Get ready to slither, eat, and grow! 
+ {offset} Guide your snake across the board using arrows, gobbling up treats 
+ {offset} to grow longer and score higher. 
+ {offset} But watch out — running into walls or your own tail will end 
+ {offset} the game!
+
+ {offset} Hope you enjoy playing the game as much as I enjoyed developing it!
+ {offset} Happy snake guiding! 
+";
+
+            Thread.Sleep(500);
             Console.Clear();
+            Console.WriteLine(title.Pastel(GREEN));
+            Console.WriteLine(text.Pastel(BROWN));
             SnakeGame.Play();
         }
 
         private static void AboutTab()
         {
+            var title = FiggleFonts.Broadway.Render("ABOUT");
+            var text = $@"
+This application was developed as part of an academic project for the User Interface (UI) subject.
+
+Resources:
+
+1. {"https://paulbourke.net/dataformats/asciiart/".Pastel(BLUE)} (ASCII Characters)
+2. {"https://ascii.co.uk/art/snake".Pastel(BLUE)} (Jennifer E. Swofford)
+3. {"https://www.pngegg.com/en/png-ogczk".Pastel(BLUE)} (Snake image)
+
+{"[Press any key to return back to the menu.]".Pastel(DARK_BLUE)}";
+
             Console.Clear();
-            var title = @"                                                          
-         .8.          8 888888888o       ,o888888o.     8 8888      88 8888888 8888888888 
-        .888.         8 8888    `88.  . 8888     `88.   8 8888      88       8 8888       
-       :88888.        8 8888     `88 ,8 8888       `8b  8 8888      88       8 8888       
-      . `88888.       8 8888     ,88 88 8888        `8b 8 8888      88       8 8888       
-     .8. `88888.      8 8888.   ,88' 88 8888         88 8 8888      88       8 8888       
-    .8`8. `88888.     8 8888888888   88 8888         88 8 8888      88       8 8888       
-   .8' `8. `88888.    8 8888    `88. 88 8888        ,8P 8 8888      88       8 8888       
-  .8'   `8. `88888.   8 8888      88 `8 8888       ,8P  ` 8888     ,8P       8 8888       
- .888888888. `88888.  8 8888    ,88'  ` 8888     ,88'     8888   ,d8P        8 8888       
-.8'       `8. `88888. 8 888888888P       `8888888P'        `Y88888P'         8 8888                                 
-
-";
-            var text = @"
-Game Rules
-Get ready to slither, eat, and grow! 
-Guide your snake across the board using arrows, gobbling up treats to grow longer and score higher. 
-But watch out — running into walls or your own tail will end the game!
-
-I hope you enjoy playing the game as much as I enjoyed developing it! Happy snake guiding! 
-";
             Console.WriteLine(title);
-            Console.WriteLine(@"This game was developed as part of an academic project for the User Interface (UI) subject.
-
-Resources:");
-            Console.Write("1. ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write("https://patorjk.com/software/taag/ ");
-            Console.ResetColor();
-            Console.WriteLine("(assets)");
-            Console.Write("2. ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write("https://paulbourke.net/dataformats/asciiart/ ");
-            Console.ResetColor();
-            Console.WriteLine("(ASCII Characters)");
             Console.WriteLine(text);
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-
-            Console.WriteLine("[Press any key to return back to the menu.]");
-            Console.ResetColor();
             _ = Console.ReadKey(true);
             MainTab();
         }
@@ -125,31 +133,34 @@ Resources:");
             Console.SetCursorPosition(0, menuTopPosition);
             for (int i = 0; i < tabs.Length; i++)
             {
+                var color = WHITE;
                 var option = tabs[i];
                 if (i == selectedIndex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
+                    color = GREEN;
                     if (option == Tab.Exit)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        color = RED;
                     }
                 }
-                Console.WriteLine($"<< {option} >>");
-                Console.ResetColor();
+                Console.WriteLine($"<< {option} >>".Pastel(color));
             }
         }
 
         private static void DisplayWelcomeText()
         {
-            var title = "🐍 Welcome to Classic Snake Game! 🐍\n";
+            var title = FiggleFonts.CyberSmall.Render("                Welcome");
             var text = "[Use the up and down keys for menu navigation. Press enter to choose the option.]";
+            var delay = 100;
+            string[] greyShadows = { BLACK, DARK_GREY, GREY, WHITE };
 
-            Console.SetCursorPosition((Console.WindowWidth - title.Length) / 2, menuTopPosition++);
-            Console.WriteLine(title);
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(text);
-            Console.ResetColor();
-            menuTopPosition += 3;
+            foreach (var color in greyShadows)
+            {
+                Console.SetCursorPosition(0, menuTopPosition);
+                Console.WriteLine(title.Pastel(color));
+                Console.WriteLine(text.Pastel(DARK_BROWN));
+                Thread.Sleep(delay);
+            }
         }
 
         private static void DisplayImage()
@@ -158,21 +169,28 @@ Resources:");
             var width = Console.WindowWidth - 33;
             var height = width / ratio;
 
-            using (var img = new Bitmap(image, new Size(width, height)))
+            using (var resizedImage = new Bitmap(image, new Size(width, height)))
             {
                 for (var i = 0; i < height; i++)
                 {
                     for (var j = 0; j < width; j++)
                     {
-                        var pixelColor = img.GetPixel(j, i);
+                        var pixelColor = resizedImage.GetPixel(j, i);
                         var greyValue = (int)((pixelColor.G + pixelColor.B + pixelColor.R) / 3.0);
                         var asciiIndex = greyValue * (asciiChars.Length - 1) / 255;
-                        Console.Write(asciiChars[asciiIndex]);
+                        var asciiValue = char.ToString(asciiChars[asciiIndex]);
+                        Console.Write(asciiValue.Pastel(Color.FromArgb(pixelColor.R, pixelColor.G, pixelColor.B)));
                     }
                     Console.WriteLine();
                 }
                 menuTopPosition = ++height;
             }
+        }
+
+        private static void ClearConsoleAtLine(int line)
+        {
+            Console.SetCursorPosition(0, line);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
         }
 
         private static void SetupConsole()

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading;
+using Pastel;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
+using static SnakeGame.Colors;
 
 namespace SnakeGame
 {
@@ -71,8 +73,6 @@ namespace SnakeGame
                 case Direction.Down:
                     ChangePosition(0, 1);
                     break;
-                default:
-                    break;
             }
         }
 
@@ -130,7 +130,7 @@ namespace SnakeGame
 
             board[fromTop, fromLeft] = PointType.Fruit;
             Console.SetCursorPosition(fromLeft, fromTop);
-            Console.Write(randomFruit);
+            Console.Write(randomFruit.PastelBg(DARK_BROWN));
         }
 
         private static void DrawBoard()
@@ -143,11 +143,12 @@ namespace SnakeGame
                     {
                         board[fromTop, fromLeft] = PointType.Wall;
                         Console.SetCursorPosition(fromLeft, fromTop);
-                        Console.Write(BOARD);
+                        Console.Write(BOARD.PastelBg(DARK_BROWN));
                     }
                     else
                     {
                         board[fromTop, fromLeft] = PointType.Free;
+                        Console.Write(" ".PastelBg(DARK_BROWN));
                     }
                 }
             }
@@ -156,10 +157,8 @@ namespace SnakeGame
         private static void ThrowAnException(string message)
         {
             Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"Your score is {score}");
-            Console.ForegroundColor = ConsoleColor.Red;
-            throw new Exception(message);
+            Console.WriteLine($"Your score is {score}".Pastel(BLUE));
+            throw new Exception(message.Pastel(RED));
         }
     }
 }

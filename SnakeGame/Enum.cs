@@ -23,7 +23,6 @@
             Play,
             About,
             Exit,
-            Main
         }
     }
 }
