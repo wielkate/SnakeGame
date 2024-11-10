@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pastel;
+using static SnakeGame.Colors;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
 
@@ -46,14 +48,14 @@ namespace SnakeGame
         {
             SnakeGame.board[fromTop, fromLeft] = PointType.Snake;
             Console.SetCursorPosition(fromLeft, fromTop);
-            Console.Write(snakePart);
+            Console.Write(snakePart.PastelBg(DARK_BROWN));
         }
 
         private void RemoveSnakePartAtPoint(int fromLeft, int fromTop)
         {
             SnakeGame.board[fromTop, fromLeft] = PointType.Free;
             Console.SetCursorPosition(fromLeft, fromTop);
-            Console.Write(" ");
+            Console.Write(" ".PastelBg(DARK_BROWN));
         }
     }
 }

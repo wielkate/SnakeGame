@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Text;
 using System.Threading;
+using Pastel;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
+using static SnakeGame.Colors;
 
 namespace SnakeGame
 {
@@ -20,7 +21,6 @@ namespace SnakeGame
 
         internal static void Play()
         {
-            SetupConsole();
             DrawBoard();
             snake.DrawSnake();
             DrawFruits();
@@ -62,18 +62,16 @@ namespace SnakeGame
             switch (direction)
             {
                 case Direction.Left:
-                    ChangePosition(-2, 0); // pixel's width is 8 (so +-2)
+                    ChangePosition(-2, 0); // char size is 16 px wide (so +-2)
                     break;
                 case Direction.Right:
                     ChangePosition(2, 0);
                     break;
                 case Direction.Up:
-                    ChangePosition(0, -1); // pixel's height is 16 (so +-1)
+                    ChangePosition(0, -1); // char size is 8 px hight (so +-1)
                     break;
                 case Direction.Down:
                     ChangePosition(0, 1);
-                    break;
-                default:
                     break;
             }
         }
@@ -132,7 +130,7 @@ namespace SnakeGame
 
             board[fromTop, fromLeft] = PointType.Fruit;
             Console.SetCursorPosition(fromLeft, fromTop);
-            Console.Write(randomFruit);
+            Console.Write(randomFruit.PastelBg(DARK_BROWN));
         }
 
         private static void DrawBoard()
@@ -145,30 +143,22 @@ namespace SnakeGame
                     {
                         board[fromTop, fromLeft] = PointType.Wall;
                         Console.SetCursorPosition(fromLeft, fromTop);
-                        Console.Write(BOARD);
+                        Console.Write(BOARD.PastelBg(DARK_BROWN));
                     }
                     else
                     {
                         board[fromTop, fromLeft] = PointType.Free;
+                        Console.Write(" ".PastelBg(DARK_BROWN));
                     }
                 }
             }
         }
 
-        private static void SetupConsole()
-        {
-            Console.Title = CONSOLE_TITLE;
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.CursorVisible = false;
-        }
-
         private static void ThrowAnException(string message)
         {
             Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"Your score is {score}");
-            Console.ForegroundColor = ConsoleColor.Red;
-            throw new Exception(message);
+            Console.WriteLine($"Your score is {score}".Pastel(BLUE));
+            throw new Exception(message.Pastel(RED));
         }
     }
 }
