@@ -30,6 +30,7 @@ namespace SnakeGame
         {
             Console.Clear();
             DisplayImage();
+
             do
             {
                 DisplayWelcomeText(); // Blinking till you press the key
@@ -111,6 +112,7 @@ Resources:
             Console.Clear();
             Console.WriteLine(title);
             Console.WriteLine(text);
+          
             _ = Console.ReadKey(true);
             MainTab();
         }

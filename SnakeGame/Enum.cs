@@ -22,7 +22,7 @@
         {
             Play,
             About,
-            Exit,
+            Exit
         }
     }
 }
