@@ -8,6 +8,7 @@ using Pastel;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
 using static SnakeGame.Colors;
+using static SnakeGame.Sounds;
 
 namespace SnakeGame
 {
@@ -23,6 +24,8 @@ namespace SnakeGame
         internal static void Display()
         {
             SetupConsole();
+            LoadSounds();
+            introSound.Play();
             MainTab();
         }
 
@@ -30,6 +33,7 @@ namespace SnakeGame
         {
             Console.Clear();
             DisplayImage();
+
             do
             {
                 DisplayWelcomeText(); // Blinking till you press the key
@@ -37,31 +41,30 @@ namespace SnakeGame
             while (!Console.KeyAvailable);
             menuTopPosition += 3;
             ClearConsoleAtLine(menuTopPosition);
+            introSound.Stop();
 
-            ConsoleKey key;
-            do
+            var key = Console.ReadKey(true).Key;
+            while (key != ConsoleKey.Enter)
             {
-                key = Console.ReadKey(true).Key;
+                pickSound.PlaySync();
                 selectedIndex = SelectIndex(key);
                 DisplayMenuOptions();
+                key = Console.ReadKey(true).Key;
             }
-            while (key != ConsoleKey.Enter);
 
             DisplayTab(tabs[selectedIndex]);
         }
 
         private static void DisplayTab(Tab tab)
         {
-            switch (tab)
+            selectSound.PlaySync();
+            if (tab == Tab.Play)
             {
-                case Tab.Play:
-                    PlayTab();
-                    break;
-                case Tab.About:
-                    AboutTab();
-                    break;
-                case Tab.Exit:
-                    break;
+                PlayTab();
+            }
+            else if (tab == Tab.About)
+            {
+                AboutTab();
             }
         }
 
@@ -77,17 +80,16 @@ namespace SnakeGame
 {offset}                  |/   \_/   \_/   \_/   \    o \
 {offset}                                          \_____/--<";
             var text = $@"
- {offset} Get ready to slither, eat, and grow! 
- {offset} Guide your snake across the board using arrows, gobbling up treats 
- {offset} to grow longer and score higher. 
- {offset} But watch out — running into walls or your own tail will end 
- {offset} the game!
+{offset} Get ready to slither, eat, and grow! 
+{offset} Guide your snake across the board using arrows, gobbling up treats 
+{offset} to grow longer and score higher. 
+{offset} But watch out — running into walls or your own tail will end 
+{offset} the game!
 
- {offset} Hope you enjoy playing the game as much as I enjoyed developing it!
- {offset} Happy snake guiding! 
+{offset} Hope you enjoy playing the game as much as I enjoyed developing it!
+{offset} Happy snake guiding! 
 ";
 
-            Thread.Sleep(500);
             Console.Clear();
             Console.WriteLine(title.Pastel(GREEN));
             Console.WriteLine(text.Pastel(BROWN));
@@ -105,12 +107,14 @@ Resources:
 1. {"https://paulbourke.net/dataformats/asciiart/".Pastel(BLUE)} (ASCII Characters)
 2. {"https://ascii.co.uk/art/snake".Pastel(BLUE)} (Jennifer E. Swofford)
 3. {"https://www.pngegg.com/en/png-ogczk".Pastel(BLUE)} (Snake image)
+4. {"https://mixkit.co/free-sound-effects/".Pastel(BLUE)} (Sounds)
 
 {"[Press any key to return back to the menu.]".Pastel(DARK_BLUE)}";
 
             Console.Clear();
             Console.WriteLine(title);
             Console.WriteLine(text);
+
             _ = Console.ReadKey(true);
             MainTab();
         }
@@ -133,16 +137,8 @@ Resources:
             Console.SetCursorPosition(0, menuTopPosition);
             for (int i = 0; i < tabs.Length; i++)
             {
-                var color = WHITE;
                 var option = tabs[i];
-                if (i == selectedIndex)
-                {
-                    color = GREEN;
-                    if (option == Tab.Exit)
-                    {
-                        color = RED;
-                    }
-                }
+                var color = (i == selectedIndex) ? (option == Tab.Exit ? RED : GREEN) : WHITE;
                 Console.WriteLine($"<< {option} >>".Pastel(color));
             }
         }
@@ -191,6 +187,14 @@ Resources:
         {
             Console.SetCursorPosition(0, line);
             Console.WriteLine(new string(' ', Console.WindowWidth));
+        }
+
+        private static void LoadSounds()
+        {
+            introSound.Load();
+            pickSound.Load();
+            selectSound.Load();
+            gameOverSound.Load();
         }
 
         private static void SetupConsole()

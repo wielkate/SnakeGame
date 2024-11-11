@@ -4,6 +4,7 @@ using Pastel;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
 using static SnakeGame.Colors;
+using static SnakeGame.Sounds;
 
 namespace SnakeGame
 {
@@ -14,8 +15,8 @@ namespace SnakeGame
     {
         internal static readonly PointType[,] board = new PointType[BOARD_HEIGHT, BOARD_WIDTH];
 
-        private static readonly Snake snake = new Snake();
         private static readonly Random random = new Random();
+        private static readonly Snake snake = new Snake();
         private static Direction currentDirection = Direction.Down;
         private static int score = 0;
 
@@ -96,6 +97,7 @@ namespace SnakeGame
             }
             else if (board[newTop, newLeft] == PointType.Fruit)
             {
+                pickSound.Play();
                 snake.Grow();
                 snake.MoveHeadTo(newLeft, newTop);
                 DrawFruit();
@@ -156,6 +158,8 @@ namespace SnakeGame
 
         private static void ThrowAnException(string message)
         {
+            pickSound.Stop();
+            gameOverSound.PlaySync();
             Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
             Console.WriteLine($"Your score is {score}".Pastel(BLUE));
             throw new Exception(message.Pastel(RED));
