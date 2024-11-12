@@ -4,10 +4,9 @@ using System.Text;
 using System.Threading;
 using Figgle;
 using Pastel;
-
+using static SnakeGame.Colors;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
-using static SnakeGame.Colors;
 using static SnakeGame.Sounds;
 
 namespace SnakeGame
@@ -76,9 +75,9 @@ namespace SnakeGame
 {offset}                     /  \  /  \  /  \  /  \
 {offset}____________________/  __\/  __\/  __\/  __\_________________________
 {offset}___________________/  /__/  /__/  /__/  /____________________________
-{offset}                  | / \   / \   / \   / \  \____
-{offset}                  |/   \_/   \_/   \_/   \    o \
-{offset}                                          \_____/--<";
+{offset}                   | / \   / \   / \   / \  \____
+{offset}                   |/   \_/   \_/   \_/   \    o \
+{offset}                                           \_____/--<";
             var text = $@"
 {offset} Get ready to slither, eat, and grow! 
 {offset} Guide your snake across the board using arrows, gobbling up treats 

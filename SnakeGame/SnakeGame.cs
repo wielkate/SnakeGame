@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using Pastel;
+using static SnakeGame.Colors;
 using static SnakeGame.Enum;
 using static SnakeGame.Parameters;
-using static SnakeGame.Colors;
 using static SnakeGame.Sounds;
 
 namespace SnakeGame
