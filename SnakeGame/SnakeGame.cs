@@ -15,6 +15,7 @@ namespace SnakeGame
     {
         internal static readonly PointType[,] board = new PointType[BOARD_HEIGHT, BOARD_WIDTH];
 
+        private static readonly int gameOverTextPosition = Math.Max(21, BOARD_HEIGHT + 1); // 20 is side bar size
         private static readonly Random random = new Random();
         private static readonly Snake snake = new Snake();
         private static Direction currentDirection = Direction.Down;
@@ -101,7 +102,8 @@ namespace SnakeGame
                 snake.Grow();
                 snake.MoveHeadTo(newLeft, newTop);
                 DrawFruit();
-                score++;
+                Console.SetCursorPosition(BOARD_WIDTH + 1, 20);
+                Console.Write($"Your score is {++score}".Pastel(BLUE));
             }
             else
             {
@@ -160,8 +162,7 @@ namespace SnakeGame
         {
             pickSound.Stop();
             gameOverSound.PlaySync();
-            Console.SetCursorPosition(0, BOARD_HEIGHT + 1);
-            Console.WriteLine($"Your score is {score}".Pastel(BLUE));
+            Console.SetCursorPosition(0, gameOverTextPosition);
             throw new Exception(message.Pastel(RED));
         }
     }
