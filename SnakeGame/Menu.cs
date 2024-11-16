@@ -14,7 +14,7 @@ namespace SnakeGame
     internal class Menu
     {
         private static readonly Tab[] tabs = { Tab.Play, Tab.About, Tab.Exit };
-        private static readonly string asciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
+        private static readonly string asciiChars = " @B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
         private static readonly Bitmap image = new Bitmap("snake.png");
 
         private static int selectedIndex = 0;
@@ -30,7 +30,7 @@ namespace SnakeGame
 
         private static void MainTab()
         {
-            Console.Clear();
+            ClearConsole(BACKGROUND_GREEN);
             DisplayImage();
 
             do
@@ -59,6 +59,7 @@ namespace SnakeGame
             selectSound.PlaySync();
             if (tab == Tab.Play)
             {
+                LoadingTab();
                 PlayTab();
             }
             else if (tab == Tab.About)
@@ -73,8 +74,8 @@ namespace SnakeGame
             var title = $@"                                                                                                                                                                                                                                                                                      
 {offset}                      __    __    __    __
 {offset}                     /  \  /  \  /  \  /  \
-{offset}____________________/  __\/  __\/  __\/  __\_________________________
-{offset}___________________/  /__/  /__/  /__/  /____________________________
+{offset}____________________/  __\/  __\/  __\/  __\________________________
+{offset}___________________/  /__/  /__/  /__/  /___________________________
 {offset}                   | / \   / \   / \   / \  \____
 {offset}                   |/   \_/   \_/   \_/   \    o \
 {offset}                                           \_____/--<";
@@ -86,13 +87,42 @@ namespace SnakeGame
 {offset} the game!
 
 {offset} Hope you enjoy playing the game as much as I enjoyed developing it!
-{offset} Happy snake guiding! 
-";
+{offset} Happy snake guiding!
 
+{offset} {"Your score is 0".Pastel(BLUE)}
+";
             Console.Clear();
             Console.WriteLine(title.Pastel(GREEN));
             Console.WriteLine(text.Pastel(BROWN));
             SnakeGame.Play();
+        }
+
+        private static void LoadingTab()
+        {
+            countdownSound.Play();
+            var delay = 40;
+            var barLength = 100;
+            var offset = new string(' ', (Console.WindowWidth - barLength) / 2);
+            var text = $@"
+                                                        Loading...
+
+
+            Do you know that the very first Snake-type game was an arcade game called Blockade. 
+            It was created by Gremlin way back in {"1976".Pastel(GREEN)}.
+";
+
+            ClearConsole(BACKGROUND_GREEN);
+            Console.SetCursorPosition(0, (Console.WindowHeight / 2) - 8);
+            Console.WriteLine(text.PastelBg(BACKGROUND_GREEN));
+            for (var i = 0; i <= barLength; i++)
+            {
+                var fillPart = new string(' ', i).PastelBg(DARK_BROWN);
+                var emptyPart = new string(' ', barLength - i).PastelBg(BROWN);
+                Console.SetCursorPosition(0, Console.WindowHeight / 2);
+                Console.WriteLine($"{offset}{fillPart}{emptyPart} {i,3}%".PastelBg(BACKGROUND_GREEN));
+                Thread.Sleep(delay);
+            }
+            countdownSound.Stop();
         }
 
         private static void AboutTab()
@@ -101,18 +131,20 @@ namespace SnakeGame
             var text = $@"
 This application was developed as part of an academic project for the User Interface (UI) subject.
 
-Resources:
+{"\x1b[1m\x1b[4mResources\x1b[0m"}:
 
 1. {"https://paulbourke.net/dataformats/asciiart/".Pastel(BLUE)} (ASCII Characters)
 2. {"https://ascii.co.uk/art/snake".Pastel(BLUE)} (Jennifer E. Swofford)
 3. {"https://www.pngegg.com/en/png-ogczk".Pastel(BLUE)} (Snake image)
 4. {"https://mixkit.co/free-sound-effects/".Pastel(BLUE)} (Sounds)
+5. {"https://getemoji.com/".Pastel(BLUE)} (Emoji)
+6. {"https://www.i2symbol.com/symbols/square".Pastel(BLUE)} (Emocji)
 
 {"[Press any key to return back to the menu.]".Pastel(DARK_BLUE)}";
 
-            Console.Clear();
-            Console.WriteLine(title);
-            Console.WriteLine(text);
+            ClearConsole(BACKGROUND_BLUE);
+            Console.WriteLine(title.PastelBg(BACKGROUND_BLUE));
+            Console.WriteLine(text.PastelBg(BACKGROUND_BLUE));
 
             _ = Console.ReadKey(true);
             MainTab();
@@ -152,8 +184,8 @@ Resources:
             foreach (var color in greyShadows)
             {
                 Console.SetCursorPosition(0, menuTopPosition);
-                Console.WriteLine(title.Pastel(color));
-                Console.WriteLine(text.Pastel(DARK_BROWN));
+                Console.WriteLine(title.Pastel(color).PastelBg(BACKGROUND_GREEN));
+                Console.WriteLine(text.Pastel(DARK_BROWN).PastelBg(BACKGROUND_GREEN));
                 Thread.Sleep(delay);
             }
         }
@@ -161,8 +193,8 @@ Resources:
         private static void DisplayImage()
         {
             var ratio = 2 * image.Width / image.Height; // char size is 16 px wide x 8 px hight
-            var width = Console.WindowWidth - 33;
-            var height = width / ratio;
+            var height = Console.WindowHeight - 8; // 8 is menu size
+            var width = height * ratio;
 
             using (var resizedImage = new Bitmap(image, new Size(width, height)))
             {
@@ -174,7 +206,8 @@ Resources:
                         var greyValue = (int)((pixelColor.G + pixelColor.B + pixelColor.R) / 3.0);
                         var asciiIndex = greyValue * (asciiChars.Length - 1) / 255;
                         var asciiValue = char.ToString(asciiChars[asciiIndex]);
-                        Console.Write(asciiValue.Pastel(Color.FromArgb(pixelColor.R, pixelColor.G, pixelColor.B)));
+                        var coloredValue = asciiValue.Pastel(Color.FromArgb(pixelColor.R, pixelColor.G, pixelColor.B)).PastelBg(BACKGROUND_GREEN);
+                        Console.Write(coloredValue);
                     }
                     Console.WriteLine();
                 }
@@ -182,18 +215,30 @@ Resources:
             }
         }
 
-        private static void ClearConsoleAtLine(int line)
-        {
-            Console.SetCursorPosition(0, line);
-            Console.WriteLine(new string(' ', Console.WindowWidth));
-        }
-
         private static void LoadSounds()
         {
+            countdownSound.Load();
+            gameOverSound.Load();
             introSound.Load();
             pickSound.Load();
             selectSound.Load();
-            gameOverSound.Load();
+        }
+
+        private static void ClearConsole(string color)
+        {
+            Console.Clear();
+            var emptyLine = new string(' ', Console.WindowWidth).PastelBg(color);
+            for (var i = 1; i < Console.BufferHeight; i++)
+            {
+                Console.WriteLine(emptyLine);
+            }
+            Console.SetCursorPosition(0, 0);
+        }
+
+        private static void ClearConsoleAtLine(int line)
+        {
+            Console.SetCursorPosition(0, line);
+            Console.WriteLine(new string(' ', Console.WindowWidth).PastelBg(BACKGROUND_GREEN));
         }
 
         private static void SetupConsole()

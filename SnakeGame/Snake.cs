@@ -12,11 +12,11 @@ namespace SnakeGame
     {
         internal (int fromLeft, int fromTop) Head { get; set; }
         private readonly Queue<(int, int)> Body;
-        internal Snake()
+        internal Snake() // init snake at first free points
         {
-            Head = (BOARD_WIDTH / 2, BOARD_HEIGHT / 2);
+            Head = (1, 2);
             Body = new Queue<(int, int)>();
-            Body.Enqueue((BOARD_WIDTH / 2, (BOARD_HEIGHT / 2) - 1));
+            Body.Enqueue((1, 1));
         }
         internal void DrawSnake()
         {
