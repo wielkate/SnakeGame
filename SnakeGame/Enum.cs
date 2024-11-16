@@ -18,6 +18,17 @@
             Snake
         }
 
+        internal enum Row
+        {
+            BoardHeight,
+            BoardWidth,
+            FruitNumber,
+            Speed,
+            Board,
+            Snake,
+            Info
+        }
+
         internal enum Tab
         {
             Play,

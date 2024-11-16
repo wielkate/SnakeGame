@@ -59,6 +59,7 @@ namespace SnakeGame
             selectSound.PlaySync();
             if (tab == Tab.Play)
             {
+                CustomTab.Tab();
                 LoadingTab();
                 PlayTab();
             }
@@ -177,7 +178,7 @@ This application was developed as part of an academic project for the User Inter
         private static void DisplayWelcomeText()
         {
             var title = FiggleFonts.CyberSmall.Render("                Welcome");
-            var text = "[Use the up and down keys for menu navigation. Press enter to choose the option.]";
+            var text = "[Use the UP and DOWN keys for menu navigation. Press ENTER to choose the option.]";
             var delay = 100;
             string[] greyShadows = { BLACK, DARK_GREY, GREY, WHITE };
 
