@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Figgle;
 using Pastel;
 using static SnakeGame.Colors;
@@ -20,7 +21,7 @@ namespace SnakeGame
         private static int selectedIndex = 0;
         private static int menuTopPosition;
 
-        internal static void Display()
+        internal static async Task Display()
         {
             SetupConsole();
             LoadSounds();
@@ -28,7 +29,7 @@ namespace SnakeGame
             MainTab();
         }
 
-        private static void MainTab()
+        private static async Task MainTab()
         {
             ClearConsole(BACKGROUND_GREEN);
             DisplayImage();
@@ -54,12 +55,13 @@ namespace SnakeGame
             DisplayTab(tabs[selectedIndex]);
         }
 
-        private static void DisplayTab(Tab tab)
+        private static async Task DisplayTab(Tab tab)
         {
             selectSound.PlaySync();
             if (tab == Tab.Play)
             {
-                CustomTab.Tab();
+                ChatbotTab.TabAsync();
+                //CustomTab.Tab();
                 LoadingTab();
                 PlayTab();
             }
@@ -161,7 +163,8 @@ This application was developed as part of an academic project for the User Inter
                     return ++selectedIndex;
                 default:
                     return selectedIndex;
-            };
+            }
+            ;
         }
 
         private static void DisplayMenuOptions()

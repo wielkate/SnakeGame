@@ -26,7 +26,9 @@
             Speed,
             Board,
             Snake,
-            Info
+            Info,
+            Chat,
+            Message
         }
 
         internal enum Tab
